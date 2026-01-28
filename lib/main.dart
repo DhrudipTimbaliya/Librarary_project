@@ -1,16 +1,21 @@
 import 'dart:core';
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'addbook.dart';
-import 'category_provider.dart';
-import 'provider.dart';
-import 'extra/db_helper.dart';
-import 'showbook.dart';
-import 'detiles.dart';
+import 'auther/auth_provider.dart';
+import 'category/category_provider.dart';
+import 'book/provider.dart';
 import 'dashboard.dart';
-import 'categorylist.dart';
-void main() {
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized(); // 🔥 REQUIRED
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   runApp(
     MultiProvider(
       providers: [
@@ -19,9 +24,9 @@ void main() {
         ChangeNotifierProvider(create: (_) => PdfProvider()),
         ChangeNotifierProvider(create: (_) => PickedDate()),
         ChangeNotifierProvider(create: (_) => CategoryProvider()),
-
+        ChangeNotifierProvider(create: (_) => AutherProvider()),
       ],
-      child: MyApp(),
+      child:MyApp(),
     ),
   );
 }

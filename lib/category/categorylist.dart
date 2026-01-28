@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:untitled10/category_provider.dart';
-import 'package:untitled10/provider.dart';
+import 'package:untitled10/category/category_provider.dart';
+import 'package:untitled10/book/provider.dart';
 import 'addCategory.dart';
-
+import 'dart:async';
 List<Color> colors = [
   Color(0xFFD6A6F8),
   Color(0xFFC48AEA),
@@ -21,10 +21,84 @@ class categoriesList extends StatefulWidget{
 
 class _categoriesListState extends State<categoriesList> {
   List<Map<String,dynamic>> catedata=[];
-  Future<void> fetchcategory() async {
+   bool serchdata=false;
+
+  TextEditingController searchController = TextEditingController();
+
+
+  void showSearchDropdown(BuildContext context) {
+
+
+
+    int x=0;
+    final RenderBox overlay = Overlay.of(context)!.context.findRenderObject() as RenderBox;
+    Timer? _debounce;
+
+
+    void _searchNow(String value) {
+
+        setState(() {
+          serchdata=true;
+          fetchcategory(keyword: value.toString());
+
+        });
+
+    }
+
+    void _onchanged(String value) {
+
+      if (_debounce?.isActive ?? false) _debounce!.cancel();
+
+      _debounce = Timer(const Duration(milliseconds: 500), () {
+        _searchNow(value);
+      });
+    }
+
+    void _onSearchSubmitted(String value) {
+      _debounce?.cancel();
+      _searchNow(value);
+    }
+
+    showMenu(
+      context: context,
+      constraints: BoxConstraints(
+        maxWidth:double.infinity,
+      ),
+      position: RelativeRect.fromLTRB(
+        50, 50, // top (below AppBar)
+        0,  0, // bottom
+      ),
+      items: [
+        PopupMenuItem(
+
+          enabled: false,
+          child: Container(
+
+            width:400,
+            child: TextField(
+              controller:searchController,
+              autofocus: true,
+              decoration: InputDecoration(
+                hintText: 'Search...',
+                prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                contentPadding: EdgeInsets.symmetric(horizontal: 10),
+              ),
+              onChanged:_onchanged,
+              onSubmitted:_onSearchSubmitted,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> fetchcategory({String? keyword}) async {
     try {
       final provider = Provider.of<CategoryProvider>(context, listen: false);
-      List<Map<String, dynamic>> fetchedData = await provider.getAll();
+      List<Map<String, dynamic>> fetchedData = await provider.getAll(keyword: keyword);
       setState(() {
         catedata = fetchedData;
       });
@@ -33,8 +107,33 @@ class _categoriesListState extends State<categoriesList> {
     }
   }
   @override
-  Widget build(BuildContext context) {
+  void initState() {
+    // TODO: implement initState
+    super.initState();
     fetchcategory();
+  }
+  Future<void> reloadData() async {
+    await fetchcategory();
+  }
+
+  void deletebook(int catId) async {
+    final provider = Provider.of<DataSet>(context, listen: false);
+    List<Map<String, dynamic>> booksToDelete = provider.data
+        .where((book) => book['cate'].toString() == catId.toString())
+        .toList();
+
+    for (var book in booksToDelete) {
+      await provider.delete(book['id']);
+    }
+
+
+  }
+
+
+
+  @override
+  Widget build(BuildContext context) {
+
 
     return Scaffold(
       appBar: AppBar(
@@ -42,8 +141,17 @@ class _categoriesListState extends State<categoriesList> {
         automaticallyImplyLeading: false,
         title: Text("Categories List"),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () {
+              showSearchDropdown(context);
+            },
+          ),
+        ],
       ),
-      body: ListView.builder(
+      body:catedata.isEmpty?Center(child: Text("Category Not Found",style: TextStyle(fontSize: 25),))
+          :ListView.builder(
           shrinkWrap: true,
           physics: NeverScrollableScrollPhysics(),
           itemCount:catedata.length,
@@ -89,7 +197,7 @@ class _categoriesListState extends State<categoriesList> {
                                       ),
                                         child: Icon(Icons.category_outlined)),
                                     SizedBox(width: 10,),
-                                    Text("${catedata[index]["cat_name"]}"),
+                                    Expanded(child: Text("${catedata[index]["cat_name"]}",softWrap: true,)),
                                   ],
                                 ),
                                 SizedBox(height: 10,),
@@ -118,9 +226,17 @@ class _categoriesListState extends State<categoriesList> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
-                              ElevatedButton(onPressed: (){
-                                     Navigator.push(context,
+                              ElevatedButton(onPressed: ()async{
+                                serchdata=false;
+                                    var result= await Navigator.push(context,
                                         MaterialPageRoute(builder: (context)=>addCategory(cat_id:catedata[index]["cat_id"])) );
+
+                                        fetchcategory();
+
+                                    setState(() {
+
+                                    });
+
                               }, child: Icon(Icons.mode_edit_outline_rounded,color: Colors.white,)
                               ,
                               style: ElevatedButton.styleFrom(
@@ -168,6 +284,7 @@ class _categoriesListState extends State<categoriesList> {
                                                   Provider.of<CategoryProvider>(context, listen: false)
                                                       .delete(catedata[index]["cat_id"]);
                                                   fetchcategory();
+                                                  deletebook(catedata[index]["cat_id"]);
                                                   Navigator.pop(context);
                                                 },
                                                 style: OutlinedButton.styleFrom(
@@ -209,10 +326,17 @@ class _categoriesListState extends State<categoriesList> {
 
       floatingActionButton:FloatingActionButton(
           backgroundColor:colors[5],
-          onPressed: (){
-            Navigator.push(
+          onPressed: ()async{
+            serchdata=false;
+            var result= await Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context)=>addCategory()));
+
+              fetchcategory();
+
+            setState(() {
+
+            });
           },
         child: Icon(Icons.add,color: Colors.white,),
       )

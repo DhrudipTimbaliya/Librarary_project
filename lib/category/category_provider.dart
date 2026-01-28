@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
-import 'database_helper.dart';
+import '../database/database_helper.dart';
 import 'category_helper.dart';
 /// ================= CATEGORY PROVIDER =================
 class CategoryProvider with ChangeNotifier {
   final CategoryHelper db = CategoryHelper();
   List<Map<String, dynamic>> categories = [];
+  String keyword = '';
+
 
   /// GET ALL CATEGORIES
-  Future<List<Map<String, dynamic>>> getAll() async {
-    categories = await db.fetchAll();
+  Future<List<Map<String, dynamic>>> getAll({String? keyword}) async {
+    categories = await db.fetchAll(keyword:keyword);
     notifyListeners();
     return categories;
   }
@@ -19,6 +21,13 @@ class CategoryProvider with ChangeNotifier {
     notifyListeners();
     return categories;
   }
+
+  /// GET  CATEGORY Name Find
+  Future<String> getCategoryNameById(int id) async {
+    final name = await db.fetchCategoryName(id);
+    return name ?? 'name Not Found';
+  }
+
 
   /// INSERT CATEGORY
   Future<int> insert(Map<String, dynamic> data) async {

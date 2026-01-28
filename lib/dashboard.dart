@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import'booklist.dart';
-import 'categorylist.dart';
+import 'package:untitled10/book/category_with_bookpage.dart';
+import 'auther/autherList.dart';
+import'book/booklist.dart';
+import 'category/categorylist.dart';
 
 
 List<Color> colors = [
@@ -23,6 +25,7 @@ class _DashbordState extends State<Dashbord> {
   Widget build(BuildContext context) {
   return Scaffold(
     appBar: AppBar(
+      automaticallyImplyLeading: false,
       backgroundColor:colors[0],
       title:Text("DashBord",textAlign: TextAlign.center,style: TextStyle(fontSize: 33),),
       centerTitle: true,
@@ -41,7 +44,7 @@ class _DashbordState extends State<Dashbord> {
           onTap: (){
             Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context)=>BookList()));
+                MaterialPageRoute(builder: (context)=>CategoryWithBook()));
           },
           child: Container(
             height: 300,
@@ -91,7 +94,34 @@ class _DashbordState extends State<Dashbord> {
               ),
             ),
           ),
-        )
+        ),
+        InkWell(
+          onTap: (){
+            Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context)=>autherList()));
+          },
+          child: Container(
+            height: 300,
+            width: 200,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(25),
+              color: colors[7],
+              border: Border.all(color:colors[6],width: 2),
+            ),
+            child:Padding(
+              padding: const EdgeInsets.all(11.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.person_rounded,size: 120,color: Colors.black),
+                  SizedBox(height: 10,),
+                  Text("Auther Management",style:TextStyle(fontSize: 20,color: Colors.black),),
+                ],
+              ),
+            ),
+          ),
+        ),
       ],
         ),
     ),

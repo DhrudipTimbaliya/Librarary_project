@@ -1,17 +1,15 @@
 import 'dart:io';
+import '../auther/auth_provider.dart';
 import 'addbook.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'category_provider.dart';
+import '../category/category_provider.dart';
 import 'provider.dart';
 import 'showbook.dart';
 
-
 class detilespage extends StatefulWidget {
   final int id;
-
-   detilespage({Key? key, required this.id}) : super(key: key);
-
+  detilespage({Key? key, required this.id}) : super(key: key);
   @override
   State<detilespage> createState() => _detilespageState();
 }
@@ -27,12 +25,13 @@ class _detilespageState extends State<detilespage> {
     Color(0xFF55297F),
     Color(0xFFE9CAFD),
   ];
-
+  
   String? name;
   String? desc;
-  String? auth;
+  int? auth;
   String? date;
   String? categoryname;
+  String? authname;
   int? category_id;
   File? pdf;
   String? imagePath;
@@ -52,7 +51,7 @@ class _detilespageState extends State<detilespage> {
     setState(() {
       name = data[0]['name'];
       desc = data[0]['description'];
-      auth = data[0]['Auth'];
+      auth = int.parse(data[0]['Auth'].toString());
       category_id = int.parse(data[0]['cate'].toString());
       pdf = File(data[0]['pdf']);
       imagePath = data[0]['image'];
@@ -67,6 +66,13 @@ class _detilespageState extends State<detilespage> {
         categoryname = categoryData[0]['cat_name'];
       });
 
+    }
+     if(auth!=null){
+      final provider = Provider.of<AutherProvider>(context, listen: false);
+      final fetchedData = await provider.getOne(auth!);
+      setState(() {
+        authname=fetchedData[0]['aut_name'];
+      });
     }
   }
 
@@ -152,8 +158,6 @@ class _detilespageState extends State<detilespage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
-
               Container(
                 decoration: BoxDecoration(
                   color:colors[7],
@@ -170,7 +174,6 @@ class _detilespageState extends State<detilespage> {
               ),
 
              SizedBox(height: 20),
-
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
@@ -196,10 +199,7 @@ class _detilespageState extends State<detilespage> {
                 ),
               ],
             ),
-            
-
              SizedBox(height: 10),
-
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -217,7 +217,7 @@ class _detilespageState extends State<detilespage> {
                   child: Padding(
                     padding: const EdgeInsets.all(9.0),
                     child: Text(
-                      auth!=null?auth!:"Not a Auth Found",
+                      authname!=null?authname!:"Not a Auth Found",
                       style:  TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ),

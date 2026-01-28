@@ -19,7 +19,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 2,
+      version: 3,
       onCreate: createTables,
     );
   }
@@ -43,6 +43,14 @@ class DatabaseHelper {
         cat_id INTEGER PRIMARY KEY AUTOINCREMENT,
         cat_name TEXT,
         cat_desc TEXT
+      )
+    ''');
+
+    await db.execute('''
+      CREATE TABLE auther(
+        aut_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        aut_name TEXT,
+        aut_about TEXT
       )
     ''');
   }

@@ -96,18 +96,33 @@ class _addCategoryState extends State<addCategory> {
                   controller: name,
                   decoration: InputDecoration(
                     hintText: "Enter Category Name",
-                    border: OutlineInputBorder(
+                    enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(20),
-                      borderSide: BorderSide(color: Colors.deepPurpleAccent, width: 2),
+                      borderSide:shownameError?BorderSide(color: Colors.red, width: 2): BorderSide(color: Colors.deepPurpleAccent, width: 2),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      borderSide: BorderSide(color: Colors.red, width: 2),
+                    ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      borderSide: BorderSide(color: Colors.red, width: 2),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      borderSide:shownameError?BorderSide(color: Colors.red, width: 2): BorderSide(color: Colors.deepPurpleAccent, width: 2),
                     ),
                   ),
                 ),
                 if (shownameError)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: Text(
-                      "Add a category name",
-                      style: TextStyle(color: Colors.red),
+                  Align(
+                    alignment: Alignment.topLeft,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 1,left: 19),
+                      child: Text(
+                        "Add a category name",
+                        style: TextStyle(color: Colors.red),
+                      ),
                     ),
                   ),
                 SizedBox(height: 20),
@@ -115,18 +130,33 @@ class _addCategoryState extends State<addCategory> {
                   controller: desc,
                   decoration: InputDecoration(
                     hintText: "Enter Category Description",
-                    border: OutlineInputBorder(
+                    enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(20),
-                      borderSide: BorderSide(color: Colors.deepPurpleAccent, width: 2),
+                      borderSide:shownameError?BorderSide(color: Colors.red, width: 2): BorderSide(color: Colors.deepPurpleAccent, width: 2),
                     ),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(2),
+                      borderSide: BorderSide(color: Colors.red, width: 2),
+                    ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      borderSide: BorderSide(color: Colors.red, width: 2),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      borderSide:shownameError?BorderSide(color: Colors.red, width: 2): BorderSide(color: Colors.deepPurpleAccent, width: 2),
                   ),
                 ),
+                ),
                 if (showdescError)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: Text(
-                      "add a category description",
-                      style: TextStyle(color: Colors.red),
+                  Align(
+                    alignment: Alignment.topLeft,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 1,left: 19),
+                      child: Text(
+                        "add a category description",
+                        style: TextStyle(color: Colors.red),
+                      ),
                     ),
                   ),
                 SizedBox(height: 20),
@@ -153,11 +183,13 @@ class _addCategoryState extends State<addCategory> {
                         if (widget.cat_id == null) {
                           // Add new category
                           await cateProvider.insert(data!);
+                          Navigator.pop(context,true);
                         } else {
                           // Update existing category
                           await cateProvider.update(data!, widget.cat_id!);
+                          Navigator.pop(context);
                         }
-                        Navigator.pop(context);
+
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text("Enter Category Name and Description")),

@@ -9,10 +9,11 @@ import 'book_helper.dart';
 class DataSet with ChangeNotifier {
   final BookHelper record = BookHelper();
   List<Map<String, dynamic>> data = [];
+  String keyword = '';
 
   /// GET ALL BOOKS
-  Future<List<Map<String, dynamic>>> getData() async {
-    data = await record.fetchAll();
+  Future<List<Map<String, dynamic>>> getData(String keyword) async {
+    data = await record.fetchAll(keyword:keyword);
     notifyListeners();
     return data;
   }
@@ -27,22 +28,69 @@ class DataSet with ChangeNotifier {
   /// INSERT BOOK
   Future<int> insert(Map<String, dynamic> newData) async {
     int id = await record.insert(newData);
-    await getData();
+    await getData(keyword);
     return id;
   }
 
   /// UPDATE BOOK
   Future<int> update(Map<String, dynamic> newData, int id) async {
     int res = await record.update( id,newData);
-    await getData();
+    await getData(keyword);
     return res;
   }
 
   /// DELETE BOOK
   Future<void> delete(int id) async {
     await record.delete(id);
-    await getData();
+    await getData(keyword);
   }
+
+
+
+
+  String? categorieslistid;
+  List<int> autherlistid = [];
+
+  /// FETCH FILTERED BOOKS
+  Future<void> fetchFilteredBooks({
+    String? keywordParam,
+    String? categoryIdsParam,
+    List<String>? authorIdsParam,
+  }) async {
+    final String searchKeyword =
+    (keywordParam ?? keyword).trim();
+
+    final String? categories = categorieslistid;
+
+    final List<String> authors =
+        authorIdsParam ??
+            autherlistid.map((e) => e.toString()).toList();
+
+    try {
+      data = await record.fetchFilteredBooks(
+        keyword: searchKeyword.isEmpty ? null : searchKeyword,
+        categoryId:categories!,
+        authorIds: authors.isEmpty ? null : authors,
+      );
+
+      notifyListeners();
+    } catch (e) {
+      debugPrint("Error fetching filtered books: $e");
+    }
+  }
+
+
+
+
+  /// CLEAR FILTERS
+  void clearFilters() {
+    keyword = '';
+    categorieslistid =null;
+    autherlistid = [];
+    data = [];
+    notifyListeners();
+  }
+
 
   /// CLEAR DATA
   void clearData() {
